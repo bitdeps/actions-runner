@@ -1,0 +1,60 @@
+name: Publish Images
+
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BASE: ${{ github.repository_owner }}/actions-runner
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        include:
+        - file: ubuntu-22.04
+          os: ubuntu
+          tags: []
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/images/${{ matrix.os }}
+          tags: |
+            ${{ join( matrix.tags, "\n" ) }}
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v3
+        with:
+          context: ./images
+          file: runners/${{ matrix.image }}.containerfile
+          platforms: |
+            linux/amd64
+          labels: |
+            ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+          push: false
