@@ -74,6 +74,9 @@ ENV XDG_RUNTIME_DIR=/run/user/1001
 ENV DOCKER_HOST=unix:///run/user/1001/podman/podman.sock
 ENV _CONTAINERS_USERNS_CONFIGURED=""
 
+# Force container jobs only!
+ENV ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
+
 RUN echo "PATH=${PATH}" > /etc/environment \
     && echo "ImageOS=${ImageOS}" >> /etc/environment \
     && echo "DOCKER_HOST=${DOCKER_HOST}" >> /etc/environment \
