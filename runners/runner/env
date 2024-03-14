@@ -1,0 +1,2 @@
+ACTIONS_RUNNER_HOOK_JOB_STARTED=/runner/hooks/started.sh
+ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/runner/hooks/completed.sh
