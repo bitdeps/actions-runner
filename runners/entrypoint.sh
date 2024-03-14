@@ -22,4 +22,4 @@ install-runner
 pull_images
 
 podman system service --time=0 &
-exec bash
+exec bash "$@"
