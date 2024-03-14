@@ -5,7 +5,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install 
         curl wget rsync \
         bzip2 unzip zip \
         openssh-client parallel time file netcat \
-        git jq
+        git jq \
     # clean up \
     && apt-get -y clean \
     && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/* /var/tmp/*
