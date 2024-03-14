@@ -18,7 +18,7 @@ jobs:
         include:
         - file: ubuntu-22.04
           os: ubuntu
-          tags: []
+          tags: ["22.04", "latest"]
 
     runs-on: ubuntu-latest
     steps:
@@ -43,14 +43,14 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/images/${{ matrix.os }}
           tags: |
-            ${{ join( matrix.tags, "\n" ) }}
+            ${{ join( matrix.tags, ' ') }}
 
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v3
         with:
           context: ./images
-          file: runners/${{ matrix.image }}.containerfile
+          file: images/${{ matrix.file }}.containerfile
           platforms: |
             linux/amd64
           labels: |
