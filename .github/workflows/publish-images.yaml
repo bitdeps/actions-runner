@@ -36,6 +36,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - id: tags
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let json = `${{ toJSON(matrix.tags) }}`
+            core.setOutput("multiline", JSON.parse(json).join("\n"))
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -43,7 +50,7 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/images/${{ matrix.os }}
           tags: |
-            ${{ join( matrix.tags, ' ') }}
+            ${{ steps.tags.outputs.multiline }}
 
       - name: Build and push Docker image
         id: build-and-push
@@ -57,4 +64,4 @@ jobs:
             ${{ steps.meta.outputs.labels }}
           tags: |
             ${{ steps.meta.outputs.tags }}
-          push: false
+          push: true
