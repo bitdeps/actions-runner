@@ -77,12 +77,15 @@ ENV _CONTAINERS_USERNS_CONFIGURED=""
 # Force container jobs only!
 ENV ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
 
+## Misc
 RUN echo "PATH=${PATH}" > /etc/environment \
     && echo "ImageOS=${ImageOS}" >> /etc/environment \
     && echo "DOCKER_HOST=${DOCKER_HOST}" >> /etc/environment \
     && echo "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" >> /etc/environment \
     && mkdir -p /home/runner/.local/bin /home/runner/.local/share/containers \
-    && chown -R runner:runner /home/runner/.local
+    && chown -R runner:runner /home/runner/.local \
+    # switch to legacy iptables for better compatibility \
+    && update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 WORKDIR /home/runner
 VOLUME ["/home/runner/.local/share/containers"]
