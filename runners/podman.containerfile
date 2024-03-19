@@ -43,8 +43,7 @@ RUN mkdir -p /runner/tools/bin \
     # remove runc and clean up \
     && rm /usr/local/bin/runc && rm -rf $dist \
     # create links to static podman \
-    && ln /usr/local/bin/podman /runner/tools/bin \
-    && ln /usr/local/bin/podman /runner/tools/bin/buildah
+    && ln /usr/local/bin/podman /runner/tools/bin/podman
 
 ## Toolcache
 ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
@@ -61,6 +60,7 @@ RUN mkdir -p /runner/tools/bin \
 
 COPY --chmod=755 docker-compat.sh /usr/bin/docker
 COPY --chmod=755 docker-remote.sh /runner/tools/bin/docker
+COPY --chmod=755 docker-remote.sh /runner/tools/bin/buildah
 COPY containers /etc/containers
 COPY runner/hooks /runner/hooks
 COPY --chown=runner:runner runner/containers.conf /home/runner/.config/containers/
