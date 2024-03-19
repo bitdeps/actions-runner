@@ -42,8 +42,8 @@ RUN mkdir -p /runner/tools/bin \
     && dist=/tmp/podman-linux-${TARGETARCH}; cp -r ${dist}/etc ${dist}/usr / \
     # remove runc and clean up \
     && rm /usr/local/bin/runc && rm -rf $dist \
-    # create links to static podman \
-    && ln /usr/local/bin/podman /runner/tools/bin/podman
+    # create link to static podman (named podman-static intentionaly!) \
+    && ln /usr/local/bin/podman /runner/tools/bin/podman-static
 
 ## Toolcache
 ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
@@ -51,16 +51,19 @@ RUN mkdir /opt/hostedtoolcache \
     && chgrp runner /opt/hostedtoolcache \
     && chmod g+rwx /opt/hostedtoolcache
 
-##  Setup tools
+##  Setu container job tools
 RUN mkdir -p /runner/tools/bin \
     # gh cli \
     && curl -fLo gh.tgz https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/gh_${GH_CLI_VERSION}_linux_${TARGETARCH}.tar.gz \
     && tar -xzf gh.tgz && mv gh_${GH_CLI_VERSION}_linux_${TARGETARCH}/bin/gh /runner/tools/bin \
     && rm -rf /tmp/*
 
-COPY --chmod=755 docker-compat.sh /usr/bin/docker
-COPY --chmod=755 docker-remote.sh /runner/tools/bin/docker
 COPY --chmod=755 buildah.sh /runner/tools/bin/buildah
+COPY --chmod=755 docker-compat.sh /usr/bin/docker
+COPY --chmod=755 podman-remote.sh /runner/tools/bin/podman
+RUN ln /runner/tools/bin/podman /runner/tools/bin/docker
+
+## Copy config files
 COPY containers /etc/containers
 COPY runner/hooks /runner/hooks
 COPY --chown=runner:runner runner/containers.conf /home/runner/.config/containers/
