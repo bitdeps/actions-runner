@@ -40,10 +40,11 @@ RUN mkdir -p /runner/tools/bin \
     && curl -sL https://github.com/containers/crun/releases/download/${CRUN_VERSION}/crun-${CRUN_VERSION}-linux-${TARGETARCH}-disable-systemd -o \
         /usr/local/bin/crun && chmod 755 /usr/local/bin/crun \
     && dist=/tmp/podman-linux-${TARGETARCH}; cp -r ${dist}/etc ${dist}/usr / \
+    # Make podman-static intentionaly \
+    && mv /usr/local/bin/podman /runner/tools/bin/podman-static \
+    && ln -s /runner/tools/bin/podman-static /usr/local/bin/podman \
     # remove runc and clean up \
-    && rm /usr/local/bin/runc && rm -rf $dist \
-    # create link to static podman (named podman-static intentionaly!) \
-    && ln /usr/local/bin/podman /runner/tools/bin/podman-static
+    && rm /usr/local/bin/runc && rm -rf $dist
 
 ## Toolcache
 ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
