@@ -60,6 +60,7 @@ RUN mkdir -p /runner/tools/bin \
 
 COPY --chmod=755 docker-compat.sh /usr/bin/docker
 COPY --chmod=755 docker-remote.sh /runner/tools/bin/docker
+COPY --chmod=755 build-ah.sh /runner/tools/bin/buildah
 COPY containers /etc/containers
 COPY runner/hooks /runner/hooks
 COPY --chown=runner:runner runner/containers.conf /home/runner/.config/containers/
