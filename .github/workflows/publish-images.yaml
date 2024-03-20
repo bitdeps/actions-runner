@@ -19,7 +19,9 @@ jobs:
         - file: ubuntu-22.04
           os: ubuntu
           tags: ["22.04", "latest"]
-
+        - file: alpine
+          os: alpine
+          tags: ["3", "3.19", "latest"]
     runs-on: ubuntu-latest
     steps:
 
