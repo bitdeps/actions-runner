@@ -7,11 +7,15 @@ ARG TARGETARCH
 ARG RUNNER_VERSION=""
 ARG PODMAN_VERSION="4.9.3"
 ARG CRUN_VERSION="1.14.4"
-ARG GH_CLI_VERSION="2.45.0"
 
-# Fetch deps
+ENV RUNNER_TOOLS_BIN=/runner/tools/bin
+ARG TOOL_GH_VERSION="2.45.0"
+ARG TOOL_TLRDEV_VERSION="1.5.6"
+
+# Fetch deps and prepare
 RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install -y \
         wget curl git lsb-release unzip uidmap libcap2-bin iptables sudo tini \
+    && mkdir -p $RUNNER_TOOLS_BIN \
     # clean up \
     && apt-get -y clean \
     && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -29,13 +33,13 @@ RUN useradd -u 1001 -Um -d /home/runner -s /bin/bash runner \
     && setcap cap_setgid+ep /usr/bin/newgidmap
 
 ## Install static podman
-RUN mkdir -p /runner/tools/bin \
-    && curl -sL https://github.com/mgoltzsche/podman-static/releases/download/v${PODMAN_VERSION}/podman-linux-${TARGETARCH}.tar.gz | tar xzC /tmp \
+RUN \
+    curl -sL https://github.com/mgoltzsche/podman-static/releases/download/v${PODMAN_VERSION}/podman-linux-${TARGETARCH}.tar.gz | tar xzC /tmp \
     && curl -sL https://github.com/containers/crun/releases/download/${CRUN_VERSION}/crun-${CRUN_VERSION}-linux-${TARGETARCH}-disable-systemd -o \
         /usr/local/bin/crun && chmod 755 /usr/local/bin/crun \
     && dist=/tmp/podman-linux-${TARGETARCH}; cp -r ${dist}/etc ${dist}/usr / \
     # Make podman-static (intentional, so that container jobs don't invoke podman directly) \
-    && ln /usr/local/bin/podman /runner/tools/bin/podman-static  \
+    && ln /usr/local/bin/podman $RUNNER_TOOLS_BIN/podman-static  \
     # remove runc and clean up \
     && rm /usr/local/bin/runc && rm -rf /tmp/*
 
@@ -50,16 +54,19 @@ RUN install-runner && /home/runner/bin/installdependencies.sh \
     && chmod g+rwx /opt/hostedtoolcache
 
 ##  Setup container jobs tools and configuration
-COPY --chmod=755 buildah.sh /runner/tools/bin/buildah
-RUN \
+COPY --chmod=755 buildah.sh $RUNNER_TOOLS_BIN/buildah
+RUN cd /tmp; export tlr_arch=$TARGETARCH; if [ $tlr_arch = 'amd64' ]; then tlr_arch=x86_64; fi \
     # install static gh cli \
-    curl -fLo gh.tgz https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/gh_${GH_CLI_VERSION}_linux_${TARGETARCH}.tar.gz \
-    && tar -xzf gh.tgz && mv gh_${GH_CLI_VERSION}_linux_${TARGETARCH}/bin/gh /runner/tools/bin \
+    && curl -sL https://github.com/cli/cli/releases/download/v${TOOL_GH_VERSION}/gh_${TOOL_GH_VERSION}_linux_${TARGETARCH}.tar.gz | \
+        tar -xz && mv gh_${TOOL_GH_VERSION}_linux_${TARGETARCH}/bin/gh $RUNNER_TOOLS_BIN \
+    # install tlr.dev \
+    && curl -sL https://github.com/tellerops/teller/releases/download/v${TOOL_TLRDEV_VERSION}/teller_${TOOL_TLRDEV_VERSION}_Linux_${tlr_arch}.tar.gz | \
+        tar -xz && mv teller $RUNNER_TOOLS_BIN \
     && rm -rf /tmp/*
 
 ## Remote wrappers used by container jobs podman/docker 
-COPY --chmod=755 podman-remote.sh /runner/tools/bin/podman
-RUN ln /runner/tools/bin/podman /runner/tools/bin/docker
+COPY --chmod=755 podman-remote.sh $RUNNER_TOOLS_BIN/podman
+RUN ln $RUNNER_TOOLS_BIN/podman $RUNNER_TOOLS_BIN/docker
 
 ## Setup runner configuration and scripts
 COPY --chmod=755 docker-compat.sh /usr/bin/docker
@@ -70,7 +77,10 @@ COPY --chown=runner:runner runner/env /home/runner/.env
 COPY --chmod=755 entrypoint.sh /usr/bin
 
 ## Runner environment
-ENV PATH="${PATH}:/home/runner/.local/bin:/home/runner/bin:/runner/tools/bin"
+## Note: runner_tools_bin contains podman and docker should not override those provided
+##       the runner, since these are additional tools to be used with container jobs
+## 
+ENV PATH="${PATH}:/home/runner/.local/bin:/home/runner/bin:$RUNNER_TOOLS_BIN"
 ENV ImageOS=ubuntu22
 ENV RUNNER_MANUALLY_TRAP_SIG=1
 ENV ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT=1
@@ -78,7 +88,7 @@ ENV XDG_RUNTIME_DIR=/run/user/1001
 ENV DOCKER_HOST=unix:///run/user/1001/podman/podman.sock
 ENV _CONTAINERS_USERNS_CONFIGURED=""
 
-## Note! Forces container jobs only
+## Note! Forces container jobs only mode
 ENV ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
 
 ## Misc
