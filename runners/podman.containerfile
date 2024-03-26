@@ -4,7 +4,7 @@ FROM mgoltzsche/podman:4.9.4-minimal as podman
 FROM ubuntu:jammy
 
 ARG TARGETARCH
-ARG RUNNER_VERSION=""
+ARG RUNNER_VERSION="v2.314.1"
 ARG PODMAN_VERSION="4.9.3"
 ARG CRUN_VERSION="1.14.4"
 
