@@ -2,13 +2,15 @@ FROM ubuntu:22.04@sha256:77906da86b60585ce12215807090eb327e7386c8fafb5402369e421
 
 ARG TARGETARCH
 # renovate: datasource=github-releases depName=actions/runner
-ARG RUNNER_VERSION="v2.314.1"
-ARG PODMAN_VERSION="4.9.4"
-ARG CRUN_VERSION="1.14.4"
+ARG RUNNER_VERSION=v2.314.1
+# renovate: datasource=github-releases depName=mgoltzsche/podman-static
+ARG PODMAN_VERSION=4.9.4
+# renovate: datasource=github-releases depName=containers/crun
+ARG CRUN_VERSION=1.14.4
+# renovate: datasource=github-releases depName=cli/cli
+ARG TOOL_GH_VERSION="2.45.0"
 
 ENV RUNNER_TOOLS_BIN=/runner/tools/bin
-ARG TOOL_GH_VERSION="2.45.0"
-ARG TOOL_TLRDEV_VERSION="1.5.6"
 
 # Fetch deps and prepare
 RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install -y \
@@ -57,9 +59,6 @@ RUN cd /tmp; export tlr_arch=$TARGETARCH; if [ $tlr_arch = 'amd64' ]; then tlr_a
     # install static gh cli \
     && curl -sL https://github.com/cli/cli/releases/download/v${TOOL_GH_VERSION}/gh_${TOOL_GH_VERSION}_linux_${TARGETARCH}.tar.gz | \
         tar -xz && mv gh_${TOOL_GH_VERSION}_linux_${TARGETARCH}/bin/gh $RUNNER_TOOLS_BIN \
-    # install tlr.dev \
-    && curl -sL https://github.com/tellerops/teller/releases/download/v${TOOL_TLRDEV_VERSION}/teller_${TOOL_TLRDEV_VERSION}_Linux_${tlr_arch}.tar.gz | \
-        tar -xz && mv teller $RUNNER_TOOLS_BIN \
     && rm -rf /tmp/*
 
 ## Remote wrappers used by container jobs podman/docker 
