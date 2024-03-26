@@ -8,25 +8,23 @@
   "labels": [
     "dependencies"
   ],
-  "regexManagers": [
+  "customManagers": [
     {
+      "customType": "regex",
       "fileMatch": [
-        "runners/.*\\.containerfile$"
+        "^Dockerfile$"
       ],
       "matchStrings": [
         "ARG RUNNER_VERSION=\"?(?<currentValue>.+?)\"?\\n"
       ],
-      "datasourceTemplate": "github-releases",
-      "depNameTemplate": "actions/runner"
+      "depNameTemplate": "actions/runner",
+      "datasourceTemplate": "github-releases"
     }
   ],
   "packageRules": [
     {
       "matchDatasources": [
         "github-releases"
-      ],
-      "matchDepNames": [
-        "actions/runner"
       ],
       "matchUpdateTypes": [
         "minor",
