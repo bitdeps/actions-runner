@@ -8,23 +8,10 @@
   "labels": [
     "dependencies"
   ],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "fileMatch": [
-        "^Dockerfile$"
-      ],
-      "matchStrings": [
-        "ARG RUNNER_VERSION=\"?(?<currentValue>.+?)\"?\\n"
-      ],
-      "depNameTemplate": "actions/runner",
-      "datasourceTemplate": "custom.github-releases"
-    }
-  ],
   "packageRules": [
     {
       "matchDatasources": [
-        "custom.github-releases"
+        "custom.action-runner"
       ],
       "matchUpdateTypes": [
         "minor",
@@ -32,6 +19,20 @@
       ],
       "versioning": "semver",
       "automerge": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "\\.containerfile$"
+      ],
+      "matchStrings": [
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\sARG .*?_VERSION=(?<currentValue>.*)\\s"
+      ],
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+      "extractVersionTemplate": "^v?(?<version>.*)$"
     }
   ]
 }
