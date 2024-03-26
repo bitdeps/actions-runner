@@ -18,18 +18,19 @@
         "ARG RUNNER_VERSION=\"?(?<currentValue>.+?)\"?\\n"
       ],
       "depNameTemplate": "actions/runner",
-      "datasourceTemplate": "github-releases"
+      "datasourceTemplate": "custom.github-releases"
     }
   ],
   "packageRules": [
     {
       "matchDatasources": [
-        "github-releases"
+        "custom.github-releases"
       ],
       "matchUpdateTypes": [
         "minor",
         "patch"
       ],
+      "versioning": "semver",
       "automerge": false
     }
   ]
