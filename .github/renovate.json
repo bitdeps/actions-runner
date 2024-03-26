@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "forkProcessing": "enabled",
+  "baseBranches": [
+    "main"
+  ],
+  "rebaseWhen": "conflicted",
+  "dependencyDashboard": false,
+  "prHourlyLimit": 2,
+  "labels": [
+    "dependencies"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "runners/.*\\.containerfile$"
+      ],
+      "matchStrings": [
+        "ARG RUNNER_VERSION=\"?(?<currentValue>.+?)\"?\\n"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "actions/runner"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchDepNames": [
+        "actions/runner"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": false
+    }
+  ]
+}
