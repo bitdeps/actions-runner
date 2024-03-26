@@ -11,13 +11,8 @@
   "packageRules": [
     {
       "matchDatasources": [
-        "custom.action-runner"
+        "github-releases"
       ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "versioning": "semver",
       "automerge": false
     }
   ],
