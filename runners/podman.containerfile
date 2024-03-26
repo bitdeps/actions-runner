@@ -1,4 +1,4 @@
-FROM mgoltzsche/podman:4.9.3-minimal as podman
+FROM mgoltzsche/podman:4.9.4-minimal as podman
 
 # Note: github actions runner is dynamically linked, supports only debian/ubuntu OS
 FROM ubuntu:jammy
