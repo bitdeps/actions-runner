@@ -5,7 +5,6 @@
   ],
   "rebaseWhen": "conflicted",
   "dependencyDashboard": false,
-  "prHourlyLimit": 2,
   "labels": [
     "dependencies"
   ],
