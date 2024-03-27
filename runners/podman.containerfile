@@ -46,7 +46,8 @@ RUN \
 ## Install Github Actions runner
 ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
 COPY --chmod=755 install-runner /usr/bin
-RUN install-runner && /home/runner/bin/installdependencies.sh \
+RUN RUNNER_VERSION=${RUNNER_VERSION} install-runner \
+    && /home/runner/bin/installdependencies.sh \
     && apt-get -y clean && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # Setup hosted toolcache directory \
     && mkdir /opt/hostedtoolcache \
