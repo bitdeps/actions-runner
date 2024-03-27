@@ -39,7 +39,14 @@ jobs:
 
       - name: Runner version
         run: |
-          cat runners/${{ github.event.inputs.runner }}.containerfile | sed -n '/ARG RUNNER_VERSION=/ { s/ARG //; p; }' ) >> $GITHUB_ENV
+          version="${{ github.event.inputs.version }}"
+          if [ -z "$version" ]; then 
+            version="$(
+              cat runners/${{ github.event.inputs.runner }}.containerfile |
+              sed -En '/ARG\s+RUNNER_VERSION=/ { s/ARG\s+RUNNER_VERSION=//; p; }'
+            )"
+          fi
+          echo "RUNNER_VERSION=${version}" >> $GITHUB_ENV
 
       - name: Rolling tag
         uses: bitdeps/rolling-tag@v1
