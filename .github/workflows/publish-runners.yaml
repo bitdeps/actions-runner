@@ -3,11 +3,14 @@ name: Publish Runner Image
 on:
   workflow_dispatch:
     inputs:
-      runnerVersion:
+      runner:
         type: string
-        description: Version of the runner being installed
-        # not yet
-        # const inputRunnerVersion = "${{ github.event.inputs.runnerVersion }}"
+        description: Runner name ( runners/{{ name }}.containerfile )
+        required: true
+      version:
+        type: string
+        description: Runner version (when empty the version set a containerfile is used)
+        default: ''
 
 env:
   REGISTRY: ghcr.io
@@ -34,21 +37,45 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v5
+      - name: Runner version
+        run: |
+          cat runners/${{ github.event.inputs.runner }}.containerfile | sed -n '/ARG RUNNER_VERSION=/ { s/ARG //; p; }' ) >> $GITHUB_ENV
+
+      - name: Rolling tag
+        uses: bitdeps/rolling-tag@v1
+        id: roll
         with:
-          context: ./runners
-          file: runners/podman.containerfile
-          platforms: |
-            linux/amd64
+          version: ${{ env.RUNNER_VERSION }}
+          releases-only: false
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          # build-args: |
-          #   RUNNER_VERSION=${{ steps.image.outputs.version }}
-          push: true
-          labels: |
-            org.opencontainers.image.source=${{github.server_url}}/${{github.repository}}
-            org.opencontainers.image.licenses=Apache-2.0
+            type=raw,value=v${{ env.RUNNER_VERSION }}
+            type=raw,value=v${{ steps.roll.outputs.tag }}
+            type=raw,value=latest,enable=${{ steps.roll.outputs.updates-latest == 'true' }}
+
+      # - name: Build and push Docker image
+      #   id: build-and-push
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./runners
+      #     file: runners/${{ github.event.inputs.runner }}.containerfile
+      #     platforms: |
+      #       linux/amd64
+      #     images: |
+      #       ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      #     tags: |
+      #       :latest
+      #     build-args: |
+      #       RUNNER_VERSION=${{ github.event.inputs.version || '' }}
+      #     push: true
+      #     labels: |
+      #       org.opencontainers.image.source=${{github.server_url}}/${{github.repository}}
+      #       org.opencontainers.image.licenses=Apache-2.0
           
-          #org.opencontainers.image.description=https://github.com/actions/runner/releases/tag/latest
+      #     #org.opencontainers.image.description=https://github.com/actions/runner/releases/tag/latest
