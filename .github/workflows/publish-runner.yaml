@@ -84,3 +84,4 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.2
         with:
           custom_tag: ${{ steps.roll.outputs.tag }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
