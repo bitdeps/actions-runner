@@ -2,6 +2,9 @@ name: Publish Images
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - images/*.containerfile
 
 env:
   REGISTRY: ghcr.io
