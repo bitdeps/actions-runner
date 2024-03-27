@@ -3,10 +3,6 @@ name: Publish Runner Image
 on:
   workflow_dispatch:
     inputs:
-      images:
-        type: string
-        description: 'Images passed docker/metadata-action'
-        required: true
       version:
         type: string
         description: Runner version (when empty the version set a containerfile is used)
@@ -14,14 +10,14 @@ on:
 
   workflow_call:
     inputs:
-      images:
-        type: string
-        description: 'Images passed docker/metadata-action'
-        required: true
       version:
         type: string
         description: Runner version (when empty the version set a containerfile is used)
         default: ''
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/actions-runner
 
 jobs:
   build:
@@ -53,7 +49,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ github.event.inputs.images }}
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=${{ steps.roll.outputs.tag }}
             type=raw,value=${{ steps.roll.outputs.version }}
