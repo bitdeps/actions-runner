@@ -85,3 +85,5 @@ jobs:
         with:
           custom_tag: ${{ steps.roll.outputs.tag }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # v is already accommodated
+          tag_prefix: ''
