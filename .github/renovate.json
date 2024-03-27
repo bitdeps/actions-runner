@@ -13,7 +13,7 @@
       "matchDatasources": [
         "github-releases"
       ],
-      "automerge": false
+      "automerge": true
     }
   ],
   "customManagers": [
