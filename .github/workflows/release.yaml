@@ -14,12 +14,16 @@ env:
 
 jobs:
   publish:
+    concurrency:
+      group: release
     uses: ./.github/workflows/publish-runner.yaml
     permissions:
       contents: write
       packages: write
 
   release:
+    concurrency:
+      group: release
     runs-on: ubuntu-latest
     needs: [publish]
     permissions:
