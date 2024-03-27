@@ -18,10 +18,10 @@ on:
     outputs:
       tag:
         description: 'Published tag'
-        value: ${{ jobs.build.outputs.tag }}
+        value: ${{ jobs.image.outputs.tag }}
       version:
         description: 'Published tag version without revision'
-        value: ${{ jobs.build.outputs.version }}
+        value: ${{ jobs.image.outputs.version }}
 
 env:
   REGISTRY: ghcr.io
