@@ -42,7 +42,7 @@ jobs:
         uses: bitdeps/rolling-tag@v1
         id: roll
         with:
-          version: ${{ steps.runner.outputs.version }}
+          version: v${{ steps.runner.outputs.version }}
           releases-only: false
 
       - name: Docker meta
