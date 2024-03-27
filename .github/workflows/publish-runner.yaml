@@ -28,7 +28,7 @@ env:
   IMAGE_NAME: ${{ github.repository_owner }}/actions-runner
 
 jobs:
-  build:
+  image:
     runs-on: ubuntu-latest
     permissions:
       contents: write
