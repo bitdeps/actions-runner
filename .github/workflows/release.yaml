@@ -37,5 +37,5 @@ jobs:
         uses: ncipollo/release-action@v1
         if: steps.release.outputs.id == ''
         with:
-          name: ${{ steps.release.outputs.version }}
-          tag: ${{ steps.release.outputs.tag }}
+          name: ${{ needs.publish.outputs.version }}
+          tag: ${{ needs.publish.outputs.tag }}
