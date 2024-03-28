@@ -7,8 +7,6 @@ ARG RUNNER_VERSION=2.315.0
 ARG PODMAN_VERSION=4.9.4
 # renovate: datasource=github-releases depName=containers/crun
 ARG CRUN_VERSION=1.14.4
-# renovate: datasource=github-releases depName=HeavenVolkoff/buildah-static
-ARG BUILDAH_VERSION=1.35.2
 # renovate: datasource=github-releases depName=cli/cli
 ARG TOOL_GH_VERSION=2.46.0
 
@@ -40,11 +38,8 @@ RUN \
     && curl -sL https://github.com/containers/crun/releases/download/${CRUN_VERSION}/crun-${CRUN_VERSION}-linux-${TARGETARCH}-disable-systemd -o \
         /usr/local/bin/crun && chmod 755 /usr/local/bin/crun \
     && dist=/tmp/podman-linux-${TARGETARCH}; cp -r ${dist}/etc ${dist}/usr / \
-    # Install buildah \
-    && curl -sL https://github.com/HeavenVolkoff/buildah-static/releases/download/v${BUILDAH_VERSION}/buildah-${TARGETARCH}.tar.gz | tar xzC /tmp \
-    && mv /tmp/buildah /usr/local/bin && ln /usr/local/bin/buildah $RUNNER_TOOLS_BIN/buildah \
     # Make podman-static (intentional, so that container jobs don't invoke podman directly) \
-    && ln /usr/local/bin/podman $RUNNER_TOOLS_BIN/podman-static \
+    && ln /usr/local/bin/podman $RUNNER_TOOLS_BIN/podman-static  \
     # remove runc and clean up \
     && rm /usr/local/bin/runc && rm -rf /tmp/*
 
@@ -60,6 +55,7 @@ RUN RUNNER_VERSION=${RUNNER_VERSION} install-runner \
     && chmod g+rwx /opt/hostedtoolcache
 
 ##  Setup container jobs tools and configuration
+COPY --chmod=755 buildah.sh $RUNNER_TOOLS_BIN/buildah
 RUN cd /tmp; \
     # install static gh cli \
     curl -sL https://github.com/cli/cli/releases/download/v${TOOL_GH_VERSION}/gh_${TOOL_GH_VERSION}_linux_${TARGETARCH}.tar.gz | \
