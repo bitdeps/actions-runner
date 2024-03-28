@@ -62,7 +62,7 @@ RUN RUNNER_VERSION=${RUNNER_VERSION} install-runner \
 ##  Setup container jobs tools and configuration
 RUN cd /tmp; \
     # install static gh cli \
-    && curl -sL https://github.com/cli/cli/releases/download/v${TOOL_GH_VERSION}/gh_${TOOL_GH_VERSION}_linux_${TARGETARCH}.tar.gz | \
+    curl -sL https://github.com/cli/cli/releases/download/v${TOOL_GH_VERSION}/gh_${TOOL_GH_VERSION}_linux_${TARGETARCH}.tar.gz | \
         tar -xz && mv gh_${TOOL_GH_VERSION}_linux_${TARGETARCH}/bin/gh $RUNNER_TOOLS_BIN \
     && rm -rf /tmp/*
 
