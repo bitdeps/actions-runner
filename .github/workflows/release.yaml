@@ -17,6 +17,7 @@ jobs:
     concurrency:
       group: release
     uses: ./.github/workflows/publish-runner.yaml
+    secrets: inherit
     permissions:
       contents: write
       packages: write
