@@ -87,6 +87,8 @@ ENV DOCKER_HOST=unix:///run/user/1001/podman/podman.sock
 ENV _CONTAINERS_USERNS_CONFIGURED=""
 ## Note: Forces container jobs only mode!
 ENV ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
+## Use the fix to mitigate startup ubuntu 24.04
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
 ## Misc
 RUN echo "PATH=${PATH}" > /etc/environment \
