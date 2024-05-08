@@ -4,7 +4,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install 
         ca-certificates lsb-release fakeroot \
         curl wget rsync \
         bzip2 unzip zip \
-        openssh-client parallel time file netcat \
+        openssh-client parallel time file netcat-openbsd \
         make git jq \
     # clean up \
     && apt-get -y clean \
