@@ -6,3 +6,5 @@ RUN apk --no-cache add \
         bzip2 unzip zip \
         openssh-client parallel file netcat-openbsd \
         make git jq yq
+
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
