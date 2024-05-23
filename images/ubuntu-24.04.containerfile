@@ -10,4 +10,8 @@ RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install 
     && apt-get -y clean \
     && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+RUN \
+    # grab latest taskfile \
+    sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin \
+    # grab latest KCL \
+    curl -sSL https://kcl-lang.io/script/install-cli.sh | /bin/bash -s
