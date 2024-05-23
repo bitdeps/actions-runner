@@ -20,16 +20,19 @@ jobs:
       matrix:
         include:
         - file: ubuntu-22.04
-          os: ubuntu
+          image: ubuntu
           tags: ["22.04"]
         - file: node-22
-          os: node
+          image: node
           tags: ["22", "latest"]
+        - file: gitops
+          image: gitops
+          tags: ["latest"]
         - file: ubuntu-24.04
-          os: ubuntu
+          image: ubuntu
           tags: ["24.04", "latest"]
         - file: alpine
-          os: alpine
+          image: alpine
           tags: ["3", "3.19", "latest"]
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +62,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/images/${{ matrix.os }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/images/${{ matrix.image }}
           tags: |
             ${{ steps.tags.outputs.multiline }}
 

@@ -6,3 +6,9 @@ RUN apk --no-cache add \
         bzip2 unzip zip \
         openssh-client parallel file netcat-openbsd \
         make git jq yq
+
+RUN \
+    # grab latest taskfile \
+    sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin \
+    # grab latest KCL \
+    curl -sSL https://kcl-lang.io/script/install-cli.sh | /bin/bash -s
