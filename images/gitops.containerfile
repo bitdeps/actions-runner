@@ -6,6 +6,8 @@ RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install 
         bzip2 unzip zip \
         openssh-client parallel time file netcat-openbsd \
         make git jq yq \
+    # gcc is required for kcl to run \
+        gcc \
     # clean up \
     && apt-get -y clean \
     && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/* /var/tmp/*
