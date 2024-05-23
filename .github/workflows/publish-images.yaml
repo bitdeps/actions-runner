@@ -33,7 +33,7 @@ jobs:
           tags: ["24.04", "latest"]
         - file: alpine
           image: alpine
-          tags: ["3", "3.19", "latest"]
+          tags: ["3", "3.20", "latest"]
     runs-on: ubuntu-latest
     steps:
 
