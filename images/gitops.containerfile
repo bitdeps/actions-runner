@@ -9,6 +9,6 @@ RUN apk --no-cache add \
 
 RUN \
     # grab latest taskfile \
-    sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin \
+    sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin && \
     # grab latest KCL \
     curl -sSL https://kcl-lang.io/script/install-cli.sh | /bin/bash -s
