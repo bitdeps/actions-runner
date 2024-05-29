@@ -75,10 +75,10 @@ COPY --chown=runner:runner runner/env /home/runner/.env
 COPY --chmod=755 entrypoint.sh /usr/bin
 
 ## Runner environment
-## Note: runner_tools_bin contains podman and docker should not override those provided
-##       the runner, since these are additional tools to be used with container jobs
+## Note: runner_tools_bin contains podman and docker should not override those used
+##       by the runner, i.e have lower priority in the PATH
 ## 
-ENV PATH="${PATH}:/home/runner/.local/bin:/home/runner/bin:$RUNNER_TOOLS_BIN"
+ENV PATH="${PATH}:/home/runner/.local/bin:/home/runner/bin:${RUNNER_TOOLS_BIN}"
 ENV ImageOS=ubuntu22
 ENV RUNNER_MANUALLY_TRAP_SIG=1
 ENV ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT=1
@@ -87,7 +87,7 @@ ENV DOCKER_HOST=unix:///run/user/1001/podman/podman.sock
 ENV _CONTAINERS_USERNS_CONFIGURED=""
 ## Note: Forces container jobs only mode!
 ENV ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
-## Use the fix to mitigate startup ubuntu 24.04
+## Use the fix to mitigate startup on ubuntu 24.04
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
 ## Misc
@@ -95,8 +95,8 @@ RUN echo "PATH=${PATH}" > /etc/environment \
     && echo "ImageOS=${ImageOS}" >> /etc/environment \
     && echo "DOCKER_HOST=${DOCKER_HOST}" >> /etc/environment \
     && echo "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" >> /etc/environment \
-    && mkdir -p /github/home /home/runner/.local/bin /home/runner/.local/share/containers \
-    && chown -R runner:runner /github/home /home/runner/.local \
+    && mkdir -p /home/runner/.local/bin /home/runner/.local/share/containers \
+    && chown -R runner:runner /home/runner/.local \
     # switch to legacy iptables for better compatibility \
     && update-alternatives --set iptables /usr/sbin/iptables-legacy
 
