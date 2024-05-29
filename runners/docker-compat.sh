@@ -41,13 +41,14 @@ done
 
 if [[ "$cmd" = "create" || "$cmd" = "run" ]]; then
   fix_run_create_cmds args
-  if [[ "${RUNNER_DEBUG}" = "1" ]]; then
-    echo "--------------------------------------------------------------------"
-    set -x
-  fi
 else
   args=("${CMD_ARGS[@]}")
 fi
 
 ## run podman
-$podman "${args[@]}"
+$podman "${args[@]}" || rs=$?
+
+if [[ "${RUNNER_DEBUG}" = "1" && $rs != "0" ]]; then
+  >&2 echo "------------------"
+  >&2 echo $podman "${args[@]}"
+fi
