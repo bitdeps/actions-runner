@@ -6,6 +6,11 @@
 set -e
 : "${DOCKER_HOST:?must be provided}"
 
+## debug script (if the variable actually passed through)
+if [[ "$ACTIONS_STEP_DEBUG" == "true" ]]; then
+  set -x
+fi
+
 CMD_ARGS=("$@")
 podman=/usr/local/bin/podman
 
