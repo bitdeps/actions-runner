@@ -46,7 +46,7 @@ else
 fi
 
 ## run podman
-if [[ "${RUNNER_DEBUG}" == "1" ]]; then
+if [[ "$cmd" = "create" || "$cmd" = "run" ]] && [[ "${RUNNER_DEBUG}" == "1" ]]; then
   echo "--------------------------------------------------------------------"
   set -x
 fi
