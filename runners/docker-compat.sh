@@ -46,9 +46,4 @@ else
 fi
 
 ## run podman
-$podman "${args[@]}" || rs=$?
-
-if [[ "${RUNNER_DEBUG}" = "1" && $rs != "0" ]]; then
-  >&2 echo "------------------"
-  >&2 echo $podman "${args[@]}"
-fi
+$podman "${args[@]}"
