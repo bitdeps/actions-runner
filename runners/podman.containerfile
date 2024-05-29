@@ -95,8 +95,8 @@ RUN echo "PATH=${PATH}" > /etc/environment \
     && echo "ImageOS=${ImageOS}" >> /etc/environment \
     && echo "DOCKER_HOST=${DOCKER_HOST}" >> /etc/environment \
     && echo "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" >> /etc/environment \
-    && mkdir -p /home/runner/.local/bin /home/runner/.local/share/containers \
-    && chown -R runner:runner /home/runner/.local \
+    && mkdir -p /github/home /home/runner/.local/bin /home/runner/.local/share/containers \
+    && chown -R runner:runner /github/home /home/runner/.local \
     # switch to legacy iptables for better compatibility \
     && update-alternatives --set iptables /usr/sbin/iptables-legacy
 
