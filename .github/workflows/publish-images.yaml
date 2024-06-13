@@ -78,4 +78,4 @@ jobs:
             ${{ steps.meta.outputs.labels }}
           tags: |
             ${{ steps.meta.outputs.tags }}
-          push: true
+          push: ${{ github.ref == 'refs/heads/master' }}
