@@ -5,7 +5,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install 
         curl wget rsync \
         bzip2 unzip zip \
         openssh-client parallel time file netcat-openbsd \
-        make git jq yq gpg \
+        make git jq yq gpg just \
     # gcc is required for kcl to run \
         gcc \
     # clean up \
