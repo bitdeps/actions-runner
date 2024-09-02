@@ -2,7 +2,7 @@ FROM ubuntu:24.04@sha256:2e863c44b718727c860746568e1d54afd13b2fa71b160f5cd9058fc
 
 ARG TARGETARCH
 # renovate: datasource=github-releases depName=actions/runner
-ARG RUNNER_VERSION=2.317.0
+ARG RUNNER_VERSION=2.318.0
 # renovate: datasource=github-releases depName=mgoltzsche/podman-static
 ARG PODMAN_VERSION=4.9.5
 # renovate: datasource=github-releases depName=containers/crun
