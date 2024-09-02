@@ -8,7 +8,7 @@ ARG PODMAN_VERSION=4.9.5
 # renovate: datasource=github-releases depName=containers/crun
 ARG CRUN_VERSION=1.16.1
 # renovate: datasource=github-releases depName=cli/cli
-ARG TOOL_GH_VERSION=2.53.0
+ARG TOOL_GH_VERSION=2.54.0
 
 ENV RUNNER_TOOLS_BIN=/runner/tools/bin
 
