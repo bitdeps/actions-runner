@@ -6,7 +6,7 @@ ARG RUNNER_VERSION=2.320.0
 # renovate: datasource=github-releases depName=mgoltzsche/podman-static
 ARG PODMAN_VERSION=4.9.5
 # renovate: datasource=github-releases depName=containers/crun
-ARG CRUN_VERSION=1.16.1
+ARG CRUN_VERSION=1.18.2
 # renovate: datasource=github-releases depName=cli/cli
 ARG TOOL_GH_VERSION=2.55.0
 
