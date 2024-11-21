@@ -1,4 +1,4 @@
-FROM node:23.1.0-alpine3.19@sha256:befa90e43121e3c38c1e6bc32dcbb3c4bf5a0a66626355d893fc5f7a51653a59
+FROM node:23.2.0-alpine3.19@sha256:416fdb6cb5dbb08184ffde134fe543b014b058ed21c373767832410b25ec3662
 
 RUN apk --no-cache add \
         ca-certificates fakeroot coreutils sudo tar \
