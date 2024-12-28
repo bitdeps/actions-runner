@@ -1,6 +1,10 @@
 name: Publish Runner Image
 
 on:
+  pull_request:
+    branches:
+    - main
+
   workflow_dispatch:
     inputs:
       version:
@@ -46,7 +50,7 @@ jobs:
         id: runner
         run: |
           version="${{ inputs.version }}"; version="${version#v}"
-          from_file="$(cat runners/podman.containerfile |
+          from_file="$(cat runners/Containerfile |
             sed -En '/ARG\s+RUNNER_VERSION/ { s/ARG\s+RUNNER_VERSION=//; p; }')"
           echo "version=${version:-$from_file}" >> $GITHUB_OUTPUT
 
@@ -82,9 +86,10 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v6
         with:
-          file: runners/podman.containerfile
+          file: runners/Containerfile
           context: ./runners
-          push: true
+          # Publish image when the workflow is explicitly invoked
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: |
