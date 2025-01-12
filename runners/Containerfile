@@ -1,0 +1,143 @@
+## --- Actions Runner Dist
+FROM alpine as runner-dist
+# renovate: datasource=github-releases depName=actions/runner
+ARG RUNNER_VERSION=2.321.0
+# renovate: datasource=github-releases depName=actions/runner-container-hooks
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.2
+#
+ARG TARGETARCH=""
+ARG TARGETOS="linux"
+
+# Fetch runner
+# ref: https://github.com/actions/runner/blob/main/images/Dockerfile
+#
+RUN apk add --update curl gzip unzip
+WORKDIR /dist
+
+RUN export RUNNER_ARCH=${TARGETARCH:-$(arch | sed 's/x86_64/amd64/')} \
+    && if [ "$RUNNER_ARCH" = "amd64" ]; then export RUNNER_ARCH=x64 ; fi \
+    && curl -f -L -o runner.tar.gz https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-${TARGETOS}-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz \
+    && tar xzf ./runner.tar.gz \
+    && rm runner.tar.gz
+
+RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-container-hooks/releases/download/v${RUNNER_CONTAINER_HOOKS_VERSION}/actions-runner-hooks-k8s-${RUNNER_CONTAINER_HOOKS_VERSION}.zip \
+    && unzip ./runner-container-hooks.zip -d ./k8s \
+    && rm runner-container-hooks.zip
+
+COPY gcloud-artifacts-locations /tmp/
+RUN mkdir -p /runner/tools/helpers \
+    # create comma separated google docker registries list \
+    && cat /tmp/gcloud-artifacts-locations | sed -ne '/^#/!{ s/$/-docker.pkg.dev/; p}' | sed ':a;N;$!ba;s/\n/,/g' > /runner/tools/helpers/gcr-registries.list
+
+
+
+## --- Actions Runner Image
+FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
+ARG TARGETARCH="${TARGETARCH}"
+ARG TARGETOS="${TARGETOS:-linux}"
+
+# renovate: datasource=github-releases depName=bitdeps/podman-static
+ARG PODMAN_VERSION=5.3.1
+# renovate: datasource=github-releases depName=cli/cli
+ARG GH_CLI_VERSION=2.65.0
+# renovate: datasource=github-releases depName=GoogleCloudPlatform/docker-credential-gcr
+ARG GCR_CREDSHELPER_VERSION=2.1.25
+
+# Runner specific environment. RUNNER_TOOLS_BIN is mounted into job containers
+# which provides static tools and scripts
+ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
+ENV RUNNER_TOOLS_BIN=/runner/tools/bin
+
+COPY --from=runner-dist /runner/tools /runner/tools
+COPY --chmod=755 container-tools/* $RUNNER_TOOLS_BIN/
+# Copy docker wrapper for podman providing compatibility for actions-runner
+COPY --chmod=755 docker-compat.sh /usr/bin/docker
+
+
+# Update and install essentials
+RUN apt update -y \
+    && apt install -y --no-install-recommends wget curl ca-certificates git lsb-release unzip uidmap libcap2-bin iptables tini \
+        apt-transport-https gnupg \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt
+
+# Install static podman
+RUN export ARCH=${TARGETARCH:-$(arch | sed 's/x86_64/amd64/')}; \
+    curl -sL https://github.com/bitdeps/podman-static/releases/download/v${PODMAN_VERSION}/podman-linux-${ARCH}.tar.gz | tar xzC /tmp \
+    && dist=/tmp/podman-linux-${ARCH} \
+    # clean up dist and copy \
+    && rm ${dist}/usr/local/bin/runc && cp -r ${dist}/etc ${dist}/usr / \
+    # Link podman as podman-static to runner tools, since jobs podman wrapper uses it \
+    && ln /usr/local/bin/podman $RUNNER_TOOLS_BIN/podman-static \
+    # clean up \
+    && rm -rf /tmp/*
+
+# Create runner user (1001:1001) with subordinate id mappings
+RUN useradd -u 1001 -Um -d /home/runner -s /bin/bash runner \
+    && printf "runner:1:1000\nrunner:1002:64535\n" | tee /etc/subuid > /etc/subgid \
+    && mkdir -p /run/user/1001 \
+    && chown runner:runner /run/user/1001 \
+    && chmod a+x /run/user/1001 \
+    ## Volumes might be passed with nosuid flag, this doesn't work well on debian/ubuntu! \
+    ## So suid/sgid bits are removed from uid mapping binaries and capabilities are set directly. \
+    && chmod 0755 /usr/bin/newuidmap /usr/bin/newgidmap \
+    && setcap cap_setuid+ep /usr/bin/newuidmap \
+    && setcap cap_setgid+ep /usr/bin/newgidmap
+
+# Copy actions runner dist
+COPY --chown=runner:runner --from=runner-dist /dist /home/runner
+
+# Setup and links directories
+RUN mkdir /opt/hostedtoolcache && chgrp runner /opt/hostedtoolcache \
+    && chmod g+rwx /opt/hostedtoolcache \
+    && mkdir -p /home/runner/.local/bin /home/runner/.local/share/containers \
+    && chown -R runner:runner /home/runner/.local \
+    # switch to legacy iptables for better compatibility \
+    && update-alternatives --set iptables /usr/sbin/iptables-legacy
+
+# Copy runner configuration and env
+COPY containers /etc/containers
+COPY runner/hooks /runner/hooks
+COPY --chown=runner:runner runner/containers.conf /home/runner/.config/containers/
+COPY --chown=runner:runner runner/env /home/runner/.env
+COPY --chmod=755 entrypoint.sh /usr/bin
+
+# Setup environment
+ENV PATH="${PATH}:/home/runner/.local/bin:/home/runner/bin:${RUNNER_TOOLS_BIN}"
+ENV ImageOS=ubuntu24
+ENV RUNNER_MANUALLY_TRAP_SIG=1
+ENV ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT=1
+ENV XDG_RUNTIME_DIR=/run/user/1001
+ENV DOCKER_HOST=unix:///run/user/1001/podman/podman.sock
+ENV _CONTAINERS_USERNS_CONFIGURED=""
+# Force container jobs only mode (i.e. runner does not support jobs without job.<id>.container set)!
+ENV ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
+# Use the fix to mitigate startup on ubuntu 24.04
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+RUN echo "PATH=${PATH}" > /etc/environment \
+    && echo "ImageOS=${ImageOS}" >> /etc/environment \
+    && echo "DOCKER_HOST=${DOCKER_HOST}" >> /etc/environment \
+    && echo "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" >> /etc/environment
+
+
+# Install static tools
+RUN cd /tmp; export ARCH=${TARGETARCH:-$(arch | sed 's/x86_64/amd64/')}; \
+    # install static gh cli \
+    curl -L https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/gh_${GH_CLI_VERSION}_${TARGETOS}_${ARCH}.tar.gz | \
+        tar -xz && mv gh_${GH_CLI_VERSION}_${TARGETOS}_${ARCH}/bin/gh $RUNNER_TOOLS_BIN \
+    && rm -rf /tmp/*
+
+# Install docker credential helper for Google Artifact Registry
+RUN export ARCH=${TARGETARCH:-$(arch | sed 's/x86_64/amd64/')}; \
+    curl -fsSL "https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v${GCR_CREDSHELPER_VERSION}/docker-credential-gcr_${TARGETOS}_${ARCH}-${GCR_CREDSHELPER_VERSION}.tar.gz" \
+    | tar xz docker-credential-gcr \
+    && chmod +x docker-credential-gcr && mv docker-credential-gcr /usr/local/bin/
+
+WORKDIR /home/runner
+VOLUME ["/home/runner/.local/share/containers"]
+USER runner
+
+# User specific setup
+RUN docker-credential-gcr configure-docker --registries=$(cat /runner/tools/helpers/gcr-registries.list)
+
+ENTRYPOINT ["tini", "--", "/usr/bin/entrypoint.sh"]
