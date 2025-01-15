@@ -1,12 +1,12 @@
 ## --- Actions Runner Dist
-FROM alpine as runner-dist
+FROM alpine AS runner-dist
 # renovate: datasource=github-releases depName=actions/runner
 ARG RUNNER_VERSION=2.321.0
 # renovate: datasource=github-releases depName=actions/runner-container-hooks
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.2
 #
-ARG TARGETARCH=""
-ARG TARGETOS="linux"
+ARG TARGETARCH="${TARGETARCH:-}"
+ARG TARGETOS="${TARGETOS:-linux}"
 
 # Fetch runner
 # ref: https://github.com/actions/runner/blob/main/images/Dockerfile
@@ -33,7 +33,7 @@ RUN mkdir -p /runner/tools/helpers \
 
 ## --- Actions Runner Image
 FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
-ARG TARGETARCH="${TARGETARCH}"
+ARG TARGETARCH="${TARGETARCH:-}"
 ARG TARGETOS="${TARGETOS:-linux}"
 
 # renovate: datasource=github-releases depName=bitdeps/podman-static
@@ -57,11 +57,13 @@ COPY --chmod=755 docker-compat.sh /usr/bin/docker
 # Update and install essentials
 RUN apt update -y \
     && apt install -y --no-install-recommends wget curl ca-certificates git lsb-release unzip uidmap libcap2-bin iptables tini \
+        qemu-user-static \
         apt-transport-https gnupg \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt
 
 # Install static podman
 RUN export ARCH=${TARGETARCH:-$(arch | sed 's/x86_64/amd64/')}; \
+    [ "$ARCH" = "amd64" ] || { echo -e "\nError: Only amd64 podman is supported!"; exit 1; }; \
     curl -sL https://github.com/bitdeps/podman-static/releases/download/v${PODMAN_VERSION}/podman-linux-${ARCH}.tar.gz | tar xzC /tmp \
     && dist=/tmp/podman-linux-${ARCH} \
     # clean up dist and copy \
