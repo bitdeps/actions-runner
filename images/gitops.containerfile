@@ -5,18 +5,27 @@ RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install 
         curl wget rsync \
         bzip2 unzip zip \
         openssh-client parallel time file netcat-openbsd \
-        make git jq yq gpg just \
+        make git jq yq gpg just less \
     # gcc is required for kcl to run \
         gcc \
     # clean up \
     && apt-get -y clean \
     && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Fetch tools
 RUN \
-    # grab latest taskfile \
-    sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin && \
-    # grab latest KCL \
-    curl -sSL https://kcl-lang.io/script/install-cli.sh | /bin/bash -s
+    # grab latest taskfile and just  \
+    sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin \
+    && wget -qO- "https://github.com/casey/just/releases/download/1.38.0/just-1.38.0-x86_64-unknown-linux-musl.tar.gz" | \
+        tar xzf - -C /tmp && mv /tmp/just /usr/local/bin \
+    # Get delta \
+    && cd /tmp; curl -sSLO "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_amd64.deb" && \
+        dpkg -i git-delta_0.18.2_amd64.deb \
+    # grab KCL \
+    # ref: https://github.com/kcl-lang/kcl/issues/1668 \
+    && curl -sSL https://kcl-lang.io/script/install-cli.sh | /bin/bash -s -- 0.9.8 \
+    && apt-get -y clean && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/*
+
 
 RUN \
     # gcloud
