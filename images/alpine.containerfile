@@ -5,4 +5,10 @@ RUN apk --no-cache add \
         bash curl wget rsync \
         bzip2 unzip zip \
         openssh-client parallel file netcat-openbsd \
-        make git jq yq
+        make git jq yq less
+
+RUN \
+        # Get delta
+        pkgurl="https://github.com/dandavison/delta/releases/download/0.18.2/delta-0.18.2-x86_64-unknown-linux-musl.tar.gz"
+        wget -qO /tmp/delta.tgz "$pkgurl" && tar xzf /tmp/delta.tgz -C /tmp && mv /tmp/delta-*/delta /usr/local/bin
+        rm -rf /tmp/delta.tgz /tmp/delta-*
