@@ -5,7 +5,13 @@ RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install 
         curl wget rsync \
         bzip2 unzip zip \
         openssh-client parallel time file netcat-openbsd \
-        make git jq \
+        make git jq less \
     # clean up \
     && apt-get -y clean \
     && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN \
+    # Get delta \
+    && ( cd /tmp && curl -sSLO "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_amd64.deb" ) \
+        dpkg -i /tmp/git-delta_0.18.2_amd64.deb \
+    && apt-get -y clean && rm -rf /var/cache/apt /var/lib/apt/lists/* /tmp/*
