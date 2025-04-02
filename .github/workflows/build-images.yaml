@@ -1,0 +1,55 @@
+name: Build Images
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - images/**/
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_DIR: images/
+  IMAGE_BASE: ${{ github.repository_owner }}/actions-runner
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install devbox
+        uses: jetify-com/devbox-install-action@v0.12.0
+      
+      - name: Test `nu`
+        shell: nu {0}
+        run: |
+          ls | where type == "file" | sort-by modified
+
+      # - name: Docker meta
+      #   id: meta
+      #   uses: docker/metadata-action@v5
+      #   with:
+      #     images: |
+      #       ${{ env.REGISTRY }}/${{ env.IMAGE_BASE }}/images/${{ matrix.image }}
+      #     tags: |
+      #       ${{ steps.tags.outputs.multiline }}
+
+      # - name: Build and push Docker image
+      #   id: build-and-push
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./images
+      #     file: images/${{ matrix.file }}.containerfile
+      #     platforms: |
+      #       linux/amd64
+      #     labels: |
+      #       ${{ steps.meta.outputs.labels }}
+      #     tags: |
+      #       ${{ steps.meta.outputs.tags }}
+      #     push: ${{ github.ref == 'refs/heads/main' }}
