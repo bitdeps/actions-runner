@@ -1,0 +1,8 @@
+{
+    "packages": [
+        "nushell@latest"
+    ],
+    "scripts": {
+        "build": "scripts/build.nu"
+    }
+}
