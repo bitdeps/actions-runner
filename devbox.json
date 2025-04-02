@@ -1,0 +1,10 @@
+{
+    "packages": [
+        "nushell@latest"
+    ],
+    "shell": {
+        "scripts": {
+            "build": "devbox run -- scripts/build.nu"
+        }
+    }
+}
