@@ -27,9 +27,8 @@ jobs:
         uses: jetify-com/devbox-install-action@v0.12.0
       
       - name: Test `nu`
-        shell: nu {0}
-        run: |
-          ls | where type == "file" | sort-by modified
+        run: devbox run build
+
 
       # - name: Docker meta
       #   id: meta
