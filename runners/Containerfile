@@ -3,7 +3,7 @@ FROM alpine AS runner-dist
 # renovate: datasource=github-releases depName=actions/runner
 ARG RUNNER_VERSION=2.323.0
 # renovate: datasource=github-releases depName=actions/runner-container-hooks
-ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.2
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
 #
 ARG TARGETARCH="${TARGETARCH:-}"
 ARG TARGETOS="${TARGETOS:-linux}"
