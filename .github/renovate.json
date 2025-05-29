@@ -20,7 +20,7 @@
     {
       "customType": "regex",
       "fileMatch": [
-        "\\.containerfile$"
+        "\\.[Cc]ontainerfile$"
       ],
       "matchStrings": [
         "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\sARG .*?_VERSION=(?<currentValue>.*)\\s"
