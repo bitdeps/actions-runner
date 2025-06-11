@@ -39,7 +39,7 @@ ARG TARGETOS="${TARGETOS:-linux}"
 # renovate: datasource=github-releases depName=bitdeps/podman-static
 ARG PODMAN_VERSION=5.3.1
 # renovate: datasource=github-releases depName=cli/cli
-ARG GH_CLI_VERSION=2.74.0
+ARG GH_CLI_VERSION=2.74.1
 # renovate: datasource=github-releases depName=GoogleCloudPlatform/docker-credential-gcr
 ARG GCR_CREDSHELPER_VERSION=2.1.29
 
