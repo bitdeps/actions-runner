@@ -1,4 +1,4 @@
-FROM ubuntu:22.04@sha256:3c61d3759c2639d4b836d32a2d3c83fa0214e36f195a3421018dbaaf79cbe37f
+FROM ubuntu:22.04@sha256:104ae83764a5119017b8e8d6218fa0832b09df65aae7d5a6de29a85d813da2fb
 
 RUN export DEBIAN_FRONTEND=noninteractive; apt-get -y update && apt-get install -y \
         ca-certificates lsb-release sudo fakeroot \
