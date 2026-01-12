@@ -1,7 +1,7 @@
 ## --- Actions Runner Dist
 FROM alpine AS runner-dist
 # renovate: datasource=github-releases depName=actions/runner
-ARG RUNNER_VERSION=2.330.0
+ARG RUNNER_VERSION=2.331.0
 # renovate: datasource=github-releases depName=actions/runner-container-hooks
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.8.0
 #
